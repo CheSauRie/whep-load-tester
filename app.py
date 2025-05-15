@@ -21,9 +21,9 @@ import aiohttp
 import av
 import matplotlib.pyplot as plt
 import numpy as np
-from aiortc import RTCConfiguration, RTCPeerConnection, RTCSessionDescription
+from aiortc import RTCConfiguration, RTCPeerConnection, RTCSessionDescription, MediaStreamTrack
 from aiortc.contrib.media import MediaPlayer, MediaRecorder
-from aiortc.mediastreams import MediaStreamTrack
+from aiortc.rtcrtpparameters import RTCRtpTransceiverDirection
 
 # Thiết lập logging
 logging.basicConfig(
@@ -84,6 +84,12 @@ class WHEPClient:
             
             # Tạo session HTTP để giao tiếp với máy chủ WHEP
             self.session = aiohttp.ClientSession()
+            
+            # Thêm audio và video transceivers cho kết nối WHEP
+            # Lưu ý: WHEP thường là "receive-only" nên chúng ta chỉ cần thêm transceivers
+            # mà không cần thực sự gửi media
+            self.pc.addTransceiver("audio", direction="recvonly")
+            self.pc.addTransceiver("video", direction="recvonly")
             
             # Thiết lập recorder nếu được yêu cầu
             if self.record_path:
@@ -564,4 +570,4 @@ async def main():
 
 if __name__ == "__main__":
     # Chạy event loop
-   asyncio.run(main())
+    asyncio.run(main())
